@@ -5637,10 +5637,12 @@ static int send_bb_quest_list(ship_client_t *c, int cn, int lang) {
             iconv(ic_utf8_to_utf16, &inptr, &in, &outptr, &out);
 
             in = 112;
-            out = 244;
+            out = 240;
             inptr = quest->desc;
             outptr = (char *)pkt->entries[entries].desc;
             iconv(ic_utf8_to_utf16, &inptr, &in, &outptr, &out);
+
+            pkt->entries[entries].completed=0;
 
             ++entries;
             len += 0x13C;

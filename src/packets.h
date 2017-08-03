@@ -938,7 +938,8 @@ typedef struct bb_quest_list {
         uint32_t menu_id;
         uint32_t item_id;
         uint16_t name[32];
-        uint16_t desc[122];
+        uint16_t desc[120];
+        uint32_t completed;
     } entries[0];
 } PACKED bb_quest_list_pkt;
 
