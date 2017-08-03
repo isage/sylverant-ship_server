@@ -1557,10 +1557,10 @@ static int check_and_send_bb(ship_client_t *c, lobby_t *l, uint32_t item[4],
             return 0;
     }
 
-    pthread_mutex_lock(&l->mutex);
+//    pthread_mutex_lock(&l->mutex);
     it = lobby_add_item_locked(l, item);
     rv = subcmd_send_bb_lobby_item(l, req, it);
-    pthread_mutex_unlock(&l->mutex);
+//    pthread_mutex_unlock(&l->mutex);
 
     return rv;
 }
