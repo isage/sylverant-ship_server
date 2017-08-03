@@ -565,7 +565,7 @@ int main(int argc, char *argv[]) {
         }
     }
     else {
-        debug(DBG_WARN, "No BB ItemPT file specified, disabling Blue Burst "
+        debug(DBG_WARN, "No BB ItemPMT file specified, disabling Blue Burst "
               "support!\n");
         cfg->shipgate_flags |= SHIPGATE_FLAG_NOBB;
     }
