@@ -1443,7 +1443,7 @@ static int handle_bb_pick_up(ship_client_t *c, subcmd_bb_pick_up_t *pkt) {
             if(found == -1) {
                 debug(DBG_WARN, "Guildcard %" PRIu32 " has no item space!\n",
                       c->guildcard);
-                return -1;
+                return 0;
             }
 
             c->bb_pl->inv.item_count += found;
