@@ -744,7 +744,7 @@ static int read_bb_map_set(int solo, int i, int j) {
 
             /* Make sure the size is sane */
             if(sz % 0x48) {
-                debug(DBG_ERROR, "Invalid map size!\n");
+                debug(DBG_ERROR, "Invalid map size (%s)!\n", fn);
                 fclose(fp);
                 return 6;
             }
@@ -821,7 +821,7 @@ static int read_bb_map_set(int solo, int i, int j) {
 
             /* Make sure the size is sane */
             if(sz % 0x44) {
-                debug(DBG_ERROR, "Invalid map size!\n");
+                debug(DBG_ERROR, "Invalid map size (%s)!\n", fn);
                 fclose(fp);
                 return 6;
             }
@@ -2010,7 +2010,7 @@ int load_quest_enemies(lobby_t *l, uint32_t qid, int ver) {
     }
 
     /* If we never found a monster list, then we don't care about it at all. */
-    if(!q || (!q->num_monster_ids && !q->num_monster_types))
+//    if(!q || (!q->num_monster_ids && !q->num_monster_types))
         goto done;
 
     /* Make a copy of the monster data from the quest. */
