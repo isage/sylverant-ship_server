@@ -192,8 +192,8 @@ int pt_read_v3(const char *fn, int bb) {
     }
 
     /* Make sure the archive has the correct number of entries. */
-    if(pso_gsl_file_count(a) != 160) {
-        debug(DBG_ERROR, "%s appears to be incomplete.\n", fn);
+    if(pso_gsl_file_count(a) < 160) {
+        debug(DBG_ERROR, "%s appears to be incomplete. expected 160, got %i\n", fn, pso_gsl_file_count(a));
         rv = -2;
         goto out;
     }
@@ -3041,7 +3041,10 @@ int pt_generate_bb_boxdrop(ship_client_t *c, lobby_t *l, void *r) {
     /* Don't bother if the box has already been opened */
     gobj = &l->map_objs->objs[obj_id];
     if(gobj->flags & 0x00000001)
+    {
+        debug(DBG_WARN, "Box already opened\n");
         return 0;
+    }
 
     obj = &gobj->data;
 
@@ -3137,7 +3140,6 @@ int pt_generate_bb_boxdrop(ship_client_t *c, lobby_t *l, void *r) {
                 t1 = LE32(obj->dword[3]) >> 16;
                 item[3] = t1 * 10;
             }
-
             return check_and_send_bb(c, l, item, c->cur_area,
                                      (subcmd_bb_itemreq_t *)req, csr);
         }
