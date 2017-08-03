@@ -23,7 +23,7 @@
 
 #include <sylverant/items.h>
 #include <sylverant/debug.h>
-#include <sylverant/mtwist.h>
+#include <sylverant/pcg_basic.h>
 
 #include <psoarchive/AFS.h>
 #include <psoarchive/GSL.h>
@@ -434,7 +434,7 @@ int pt_bb_enabled(void) {
    below. :P
 */
 static int generate_weapon_v2(pt_v2_entry_t *ent, int area, uint32_t item[4],
-                              struct mt19937_state *rng, int picked, int v1,
+                              pcg32_random_t *rng, int picked, int v1,
                               lobby_t *l) {
     uint32_t rnd, upcts = 0;
     int i, j = 0, k, wchance = 0, warea = 0, npcts = 0;
@@ -503,7 +503,7 @@ static int generate_weapon_v2(pt_v2_entry_t *ent, int area, uint32_t item[4],
     }
 
     /* Roll the dice! */
-    rnd = mt19937_genrand_int32(rng) % wchance;
+    rnd = pcg32_boundedrand_r(rng, wchance);
     for(i = 0; i < j; ++i) {
         if((rnd -= ent->weapon_ratio[wtypes[i]]) > wchance) {
             item[0] = ((wtypes[i] + 1) << 8) | (wranks[i] << 16);
@@ -527,7 +527,7 @@ static int generate_weapon_v2(pt_v2_entry_t *ent, int area, uint32_t item[4],
 
 already_picked:
     /* Next up, determine the grind value. */
-    rnd = mt19937_genrand_int32(rng) % 100;
+    rnd = pcg32_boundedrand_r(rng, 100);
     for(i = 0; i < 9; ++i) {
         if((rnd -= ent->power_pattern[i][warea]) > 100) {
             item[0] |= (i << 24);
@@ -550,7 +550,7 @@ already_picked:
         if(ent->area_pattern[i][area] < 0)
             continue;
 
-        rnd = mt19937_genrand_int32(rng) % 100;
+        rnd = pcg32_boundedrand_r(rng, 100);
         warea = ent->area_pattern[i][area];
 
         for(j = 0; j < 23; ++j) {
@@ -562,7 +562,7 @@ already_picked:
                 }
 
                 /* Lets see what type we'll generate now... */
-                rnd = mt19937_genrand_int32(rng) % 100;
+                rnd = pcg32_boundedrand_r(rng, 100);
                 for(k = 0; k < 6; ++k) {
                     if((rnd -= ent->percent_attachment[k][area]) > 100) {
                         if(k == 0 || (upcts & (1 << k)))
@@ -585,10 +585,10 @@ already_picked:
     /* Finally, lets see if there's going to be an elemental attribute applied
        to this weapon, or if its rare and we need to set the flag. */
     if(!semirare && ent->element_ranking[area]) {
-        rnd = mt19937_genrand_int32(rng) % 100;
+        rnd = pcg32_boundedrand_r(rng, 100);
         if(rnd < ent->element_probability[area]) {
-            rnd = mt19937_genrand_int32(rng) %
-                attr_count[ent->element_ranking[area] - 1];
+            rnd = pcg32_boundedrand_r(rng,
+                attr_count[ent->element_ranking[area] - 1]);
             item[1] = 0x80 | attr_list[ent->element_ranking[area] - 1][rnd];
         }
     }
@@ -600,7 +600,7 @@ already_picked:
 }
 
 static int generate_weapon_v3(pt_v3_entry_t *ent, int area, uint32_t item[4],
-                              struct mt19937_state *rng, int picked, int bb,
+                              pcg32_random_t *rng, int picked, int bb,
                               lobby_t *l) {
     uint32_t rnd, upcts = 0;
     int i, j = 0, k, wchance = 0, warea = 0, npcts = 0;
@@ -670,7 +670,7 @@ static int generate_weapon_v3(pt_v3_entry_t *ent, int area, uint32_t item[4],
     }
 
     /* Roll the dice! */
-    rnd = mt19937_genrand_int32(rng) % wchance;
+    rnd = pcg32_boundedrand_r(rng, wchance);
     for(i = 0; i < j; ++i) {
         if((rnd -= ent->weapon_ratio[wtypes[i]]) > wchance) {
             item[0] = ((wtypes[i] + 1) << 8) | (wranks[i] << 16);
@@ -694,7 +694,7 @@ static int generate_weapon_v3(pt_v3_entry_t *ent, int area, uint32_t item[4],
 
 already_picked:
     /* Next up, determine the grind value. */
-    rnd = mt19937_genrand_int32(rng) % 100;
+    rnd = pcg32_boundedrand_r(rng, 100);
     for(i = 0; i < 9; ++i) {
         if((rnd -= ent->power_pattern[i][warea]) > 100) {
             item[0] |= (i << 24);
@@ -717,7 +717,7 @@ already_picked:
         if(ent->area_pattern[i][area] < 0)
             continue;
 
-        rnd = mt19937_genrand_int32(rng) % 10000;
+        rnd = pcg32_boundedrand_r(rng, 10000);
         warea = ent->area_pattern[i][area];
 
         for(j = 0; j < 23; ++j) {
@@ -729,7 +729,7 @@ already_picked:
                 }
 
                 /* Lets see what type we'll generate now... */
-                rnd = mt19937_genrand_int32(rng) % 100;
+                rnd = pcg32_boundedrand_r(rng, 100);
                 for(k = 0; k < 6; ++k) {
                     if((rnd -= ent->percent_attachment[k][area]) > 100) {
                         if(k == 0 || (upcts & (1 << k)))
@@ -752,10 +752,10 @@ already_picked:
     /* Finally, lets see if there's going to be an elemental attribute applied
        to this weapon, or if its rare and we need to set the flag. */
     if(!semirare && ent->element_ranking[area]) {
-        rnd = mt19937_genrand_int32(rng) % 100;
+        rnd = pcg32_boundedrand_r(rng, 100);
         if(rnd < ent->element_probability[area]) {
-            rnd = mt19937_genrand_int32(rng) %
-                attr_count[ent->element_ranking[area] - 1];
+            rnd = pcg32_boundedrand_r(rng,
+                attr_count[ent->element_ranking[area] - 1]);
             item[1] = 0x80 | attr_list[ent->element_ranking[area] - 1][rnd];
         }
     }
@@ -801,7 +801,7 @@ already_picked:
    evp range defined in the PMT data.
 */
 static int generate_armor_v2(pt_v2_entry_t *ent, int area, uint32_t item[4],
-                             struct mt19937_state *rng, int picked,
+                             pcg32_random_t *rng, int picked,
                              lobby_t *l) {
     uint32_t rnd;
     int i, armor = -1;
@@ -812,7 +812,7 @@ static int generate_armor_v2(pt_v2_entry_t *ent, int area, uint32_t item[4],
     if(!picked) {
         /* Go through each slot in the armor rankings to figure out which one
            that we'll be generating. */
-        rnd = mt19937_genrand_int32(rng) % 100;
+        rnd = pcg32_boundedrand_r(rng, 100);
 
 #ifdef DEBUG
         if(l->flags & LOBBY_FLAG_DBG_SDROPS)
@@ -857,7 +857,7 @@ static int generate_armor_v2(pt_v2_entry_t *ent, int area, uint32_t item[4],
     item[1] = item[2] = item[3] = 0;
 
     /* Pick a number of unit slots */
-    rnd = mt19937_genrand_int32(rng) % 100;
+    rnd = pcg32_boundedrand_r(rng, 100);
 
 #ifdef DEBUG
     if(l->flags & LOBBY_FLAG_DBG_SDROPS)
@@ -893,12 +893,12 @@ static int generate_armor_v2(pt_v2_entry_t *ent, int area, uint32_t item[4],
 #endif
 
     if(guard.dfp_range) {
-        rnd = mt19937_genrand_int32(rng) % (guard.dfp_range + 1);
+        rnd = pcg32_boundedrand_r(rng, (guard.dfp_range + 1));
         item_w[3] = (uint16_t)rnd;
     }
 
     if(guard.evp_range) {
-        rnd = mt19937_genrand_int32(rng) % (guard.evp_range + 1);
+        rnd = pcg32_boundedrand_r(rng, (guard.evp_range + 1));
         item_w[4] = (uint16_t)rnd;
     }
 
@@ -912,7 +912,7 @@ static int generate_armor_v2(pt_v2_entry_t *ent, int area, uint32_t item[4],
 }
 
 static int generate_armor_v3(pt_v3_entry_t *ent, int area, uint32_t item[4],
-                             struct mt19937_state *rng, int picked, int bb,
+                             pcg32_random_t *rng, int picked, int bb,
                              lobby_t *l) {
     uint32_t rnd;
     int i, armor = -1;
@@ -925,7 +925,7 @@ static int generate_armor_v3(pt_v3_entry_t *ent, int area, uint32_t item[4],
     if(!picked) {
         /* Go through each slot in the armor rankings to figure out which one
            that we'll be generating. */
-        rnd = mt19937_genrand_int32(rng) % 100;
+        rnd = pcg32_boundedrand_r(rng, 100);
 
 #ifdef DEBUG
         if(l->flags & LOBBY_FLAG_DBG_SDROPS)
@@ -971,7 +971,7 @@ static int generate_armor_v3(pt_v3_entry_t *ent, int area, uint32_t item[4],
     item[1] = item[2] = item[3] = 0;
 
     /* Pick a number of unit slots */
-    rnd = mt19937_genrand_int32(rng) % 100;
+    rnd = pcg32_boundedrand_r(rng, 100);
 #ifdef DEBUG
     if(l->flags & LOBBY_FLAG_DBG_SDROPS)
         debug(DBG_LOG, "generate_armor_v3: RNG picked %" PRIu32 " for slots\n",
@@ -1021,12 +1021,12 @@ static int generate_armor_v3(pt_v3_entry_t *ent, int area, uint32_t item[4],
 #endif
 
     if(dfp) {
-        rnd = mt19937_genrand_int32(rng) % (dfp + 1);
+        rnd = pcg32_boundedrand_r(rng, (dfp + 1));
         item_w[3] = (uint16_t)rnd;
     }
 
     if(evp) {
-        rnd = mt19937_genrand_int32(rng) % (evp + 1);
+        rnd = pcg32_boundedrand_r(rng, (evp + 1));
         item_w[4] = (uint16_t)rnd;
     }
 
@@ -1042,7 +1042,7 @@ static int generate_armor_v3(pt_v3_entry_t *ent, int area, uint32_t item[4],
 /* Generate a random shield, based on data for PSOv2. This is exactly the same
    as the armor version, but without unit slots. */
 static int generate_shield_v2(pt_v2_entry_t *ent, int area, uint32_t item[4],
-                              struct mt19937_state *rng, int picked,
+                              pcg32_random_t *rng, int picked,
                               lobby_t *l) {
     uint32_t rnd;
     int i, armor = -1;
@@ -1052,7 +1052,7 @@ static int generate_shield_v2(pt_v2_entry_t *ent, int area, uint32_t item[4],
     if(!picked) {
         /* Go through each slot in the armor rankings to figure out which one
            that we'll be generating. */
-        rnd = mt19937_genrand_int32(rng) % 100;
+        rnd = pcg32_boundedrand_r(rng, 100);
 
 #ifdef DEBUG
         if(l->flags & LOBBY_FLAG_DBG_SDROPS)
@@ -1111,12 +1111,12 @@ static int generate_shield_v2(pt_v2_entry_t *ent, int area, uint32_t item[4],
 #endif
 
     if(guard.dfp_range) {
-        rnd = mt19937_genrand_int32(rng) % (guard.dfp_range + 1);
+        rnd = pcg32_boundedrand_r(rng, (guard.dfp_range + 1));
         item_w[3] = (uint16_t)rnd;
     }
 
     if(guard.evp_range) {
-        rnd = mt19937_genrand_int32(rng) % (guard.evp_range + 1);
+        rnd = pcg32_boundedrand_r(rng, (guard.evp_range + 1));
         item_w[4] = (uint16_t)rnd;
     }
 
@@ -1130,7 +1130,7 @@ static int generate_shield_v2(pt_v2_entry_t *ent, int area, uint32_t item[4],
 }
 
 static int generate_shield_v3(pt_v3_entry_t *ent, int area, uint32_t item[4],
-                              struct mt19937_state *rng, int picked, int bb,
+                              pcg32_random_t *rng, int picked, int bb,
                               lobby_t *l) {
     uint32_t rnd;
     int i, armor = -1;
@@ -1142,7 +1142,7 @@ static int generate_shield_v3(pt_v3_entry_t *ent, int area, uint32_t item[4],
     if(!picked) {
         /* Go through each slot in the armor rankings to figure out which one
            that we'll be generating. */
-        rnd = mt19937_genrand_int32(rng) % 100;
+        rnd = pcg32_boundedrand_r(rng, 100);
 
 #ifdef DEBUG
         if(l->flags & LOBBY_FLAG_DBG_SDROPS)
@@ -1217,12 +1217,12 @@ static int generate_shield_v3(pt_v3_entry_t *ent, int area, uint32_t item[4],
 #endif
 
     if(dfp) {
-        rnd = mt19937_genrand_int32(rng) % (dfp + 1);
+        rnd = pcg32_boundedrand_r(rng, (dfp + 1));
         item_w[3] = (uint16_t)rnd;
     }
 
     if(evp) {
-        rnd = mt19937_genrand_int32(rng) % (evp + 1);
+        rnd = pcg32_boundedrand_r(rng, (evp + 1));
         item_w[4] = (uint16_t)rnd;
     }
 
@@ -1236,8 +1236,8 @@ static int generate_shield_v3(pt_v3_entry_t *ent, int area, uint32_t item[4],
 }
 
 static uint32_t generate_tool_base(uint16_t freqs[28][10], int area,
-                                   struct mt19937_state *rng, lobby_t *l) {
-    uint32_t rnd = mt19937_genrand_int32(rng) % 10000;
+                                   pcg32_random_t *rng, lobby_t *l) {
+    uint32_t rnd = pcg32_boundedrand_r(rng, 10000);
     int i;
 
 #ifdef DEBUG
@@ -1274,12 +1274,12 @@ static uint32_t generate_tool_base(uint16_t freqs[28][10], int area,
 /* XXXX: There's something afoot here generating invalid techs. */
 static int generate_tech(uint8_t freqs[19][10], int8_t levels[19][20],
                          int area, uint32_t item[4],
-                         struct mt19937_state *rng, lobby_t *l) {
+                         pcg32_random_t *rng, lobby_t *l) {
     uint32_t rnd, tech, level;
     int8_t t1, t2;
     int i;
 
-    rnd = mt19937_genrand_int32(rng);
+    rnd = pcg32_random_r(rng);
     tech = rnd % 1000;
 
 #ifdef DEBUG
@@ -1349,7 +1349,7 @@ static int generate_tech(uint8_t freqs[19][10], int8_t levels[19][20],
 }
 
 static int generate_tool_v2(pt_v2_entry_t *ent, int area, uint32_t item[4],
-                            struct mt19937_state *rng, lobby_t *l) {
+                            pcg32_random_t *rng, lobby_t *l) {
     item[0] = generate_tool_base(ent->tool_frequency, area, rng, l);
 
     /* Neither of these should happen, but just in case... */
@@ -1390,7 +1390,7 @@ static int generate_tool_v2(pt_v2_entry_t *ent, int area, uint32_t item[4],
 }
 
 static int generate_tool_v3(pt_v3_entry_t *ent, int area, uint32_t item[4],
-                            struct mt19937_state *rng, lobby_t *l) {
+                            pcg32_random_t *rng, lobby_t *l) {
     item[0] = generate_tool_base(ent->tool_frequency, area, rng, l);
 
     /* This shouldn't happen happen, but just in case... */
@@ -1431,11 +1431,11 @@ static int generate_tool_v3(pt_v3_entry_t *ent, int area, uint32_t item[4],
 }
 
 static int generate_meseta(int min, int max, uint32_t item[4],
-                           struct mt19937_state *rng, lobby_t *l) {
+                           pcg32_random_t *rng, lobby_t *l) {
     uint32_t rnd;
 
     if(min < max)
-        rnd = (mt19937_genrand_int32(rng) % ((max + 1) - min)) + min;
+        rnd = (pcg32_boundedrand_r(rng, ((max + 1) - min))) + min;
     else
         rnd = min;
 
@@ -1585,7 +1585,7 @@ int pt_generate_v2_drop(ship_client_t *c, lobby_t *l, void *r) {
     uint32_t rnd;
     uint32_t item[4];
     int area, do_rare = 1;
-    struct mt19937_state *rng = &c->cur_block->rng;
+    pcg32_random_t *rng = &c->cur_block->rng;
     uint16_t mid;
     game_enemy_t *enemy;
     int csr = 0;
@@ -1651,7 +1651,7 @@ int pt_generate_v2_drop(ship_client_t *c, lobby_t *l, void *r) {
     enemy->drop_done = 1;
 
     /* See if the enemy is going to drop anything at all this time... */
-    rnd = mt19937_genrand_int32(rng) % 100;
+    rnd = pcg32_boundedrand_r(rng, 100);
 
     if(rnd >= ent->enemy_dar[req->pt_index])
         /* Nope. You get nothing! */
@@ -1754,7 +1754,7 @@ int pt_generate_v2_drop(ship_client_t *c, lobby_t *l, void *r) {
     }
 
     /* Figure out what type to drop... */
-    rnd = mt19937_genrand_int32(rng) % 3;
+    rnd = pcg32_boundedrand_r(rng, 3);
     switch(rnd) {
         case 0:
             /* Drop the enemy's designated type of item. */
@@ -1842,7 +1842,7 @@ int pt_generate_v2_boxdrop(ship_client_t *c, lobby_t *l, void *r) {
     int area, do_rare = 1;
     uint32_t item[4];
     float f1, f2;
-    struct mt19937_state *rng = &c->cur_block->rng;
+    pcg32_random_t *rng = &c->cur_block->rng;
     int csr = 0;
     uint32_t qdrop = 0xFFFFFFFF;
 
@@ -2046,7 +2046,7 @@ int pt_generate_v2_boxdrop(ship_client_t *c, lobby_t *l, void *r) {
     }
 
     /* Generate an item, according to the PT data */
-    rnd = mt19937_genrand_int32(rng) % 100;
+    rnd = pcg32_boundedrand_r(rng, 100);
 
     if((rnd -= ent->box_drop[BOX_TYPE_WEAPON][area]) > 100) {
 generate_weapon:
@@ -2110,7 +2110,7 @@ int pt_generate_gc_drop(ship_client_t *c, lobby_t *l, void *r) {
     uint32_t rnd;
     uint32_t item[4];
     int area, darea, do_rare = 1;
-    struct mt19937_state *rng = &c->cur_block->rng;
+    pcg32_random_t *rng = &c->cur_block->rng;
     uint16_t mid;
     game_enemy_t *enemy;
     int csr = 0;
@@ -2233,7 +2233,7 @@ int pt_generate_gc_drop(ship_client_t *c, lobby_t *l, void *r) {
     enemy->drop_done = 1;
 
     /* See if the enemy is going to drop anything at all this time... */
-    rnd = mt19937_genrand_int32(rng) % 100;
+    rnd = pcg32_boundedrand_r(rng, 100);
 
 #ifdef DEBUG
     if(l->flags & LOBBY_FLAG_DBG_SDROPS)
@@ -2327,7 +2327,7 @@ int pt_generate_gc_drop(ship_client_t *c, lobby_t *l, void *r) {
     }
 
     /* Figure out what type to drop... */
-    rnd = mt19937_genrand_int32(rng) % 3;
+    rnd = pcg32_boundedrand_r(rng, 3);
 
 #ifdef DEBUG
     if(l->flags & LOBBY_FLAG_DBG_SDROPS) {
@@ -2431,7 +2431,7 @@ int pt_generate_gc_boxdrop(ship_client_t *c, lobby_t *l, void *r) {
     int area, darea, do_rare = 1;
     uint32_t item[4];
     float f1, f2;
-    struct mt19937_state *rng = &c->cur_block->rng;
+    pcg32_random_t *rng = &c->cur_block->rng;
     int csr = 0;
 
     /* Make sure this is actually a box drop... */
@@ -2690,7 +2690,7 @@ int pt_generate_gc_boxdrop(ship_client_t *c, lobby_t *l, void *r) {
     }
 
     /* Generate an item, according to the PT data */
-    rnd = mt19937_genrand_int32(rng) % 100;
+    rnd = pcg32_boundedrand_r(rng, 100);
 
 #ifdef DEBUG
     if(l->flags & LOBBY_FLAG_DBG_SDROPS)
@@ -2762,7 +2762,7 @@ int pt_generate_bb_drop(ship_client_t *c, lobby_t *l, void *r) {
     uint32_t rnd;
     uint32_t item[4];
     int area, do_rare = 1;
-    struct mt19937_state *rng = &c->cur_block->rng;
+    pcg32_random_t *rng = &c->cur_block->rng;
     uint16_t mid;
     game_enemy_t *enemy;
     int csr = 0;
@@ -2855,7 +2855,7 @@ int pt_generate_bb_drop(ship_client_t *c, lobby_t *l, void *r) {
     enemy->drop_done = 1;
 
     /* See if the enemy is going to drop anything at all this time... */
-    rnd = mt19937_genrand_int32(rng) % 100;
+    rnd = pcg32_boundedrand_r(rng, 100);
 
     if(rnd >= ent->enemy_dar[req->pt_index])
         /* Nope. You get nothing! */
@@ -2931,7 +2931,7 @@ int pt_generate_bb_drop(ship_client_t *c, lobby_t *l, void *r) {
     }
 
     /* Figure out what type to drop... */
-    rnd = mt19937_genrand_int32(rng) % 3;
+    rnd = pcg32_boundedrand_r(rng, 3);
     switch(rnd) {
         case 0:
             /* Drop the enemy's designated type of item. */
@@ -3017,7 +3017,7 @@ int pt_generate_bb_boxdrop(ship_client_t *c, lobby_t *l, void *r) {
     int area, do_rare = 1;
     uint32_t item[4];
     float f1, f2;
-    struct mt19937_state *rng = &c->cur_block->rng;
+    pcg32_random_t *rng = &c->cur_block->rng;
     int csr = 0;
 
     /* XXXX: Handle Episode 4 */
@@ -3228,7 +3228,7 @@ int pt_generate_bb_boxdrop(ship_client_t *c, lobby_t *l, void *r) {
     }
 
     /* Generate an item, according to the PT data */
-    rnd = mt19937_genrand_int32(rng) % 100;
+    rnd = pcg32_boundedrand_r(rng, 100);
 
     if((rnd -= ent->box_drop[BOX_TYPE_WEAPON][area]) > 100) {
 generate_weapon:

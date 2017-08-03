@@ -24,7 +24,7 @@
 #include <arpa/inet.h>
 
 #include <sylverant/debug.h>
-#include <sylverant/mtwist.h>
+#include <sylverant/pcg_basic.h>
 
 #include <psoarchive/PRS.h>
 
@@ -1895,9 +1895,9 @@ uint8_t pmt_lookup_stars_bb(uint32_t code) {
    is actually defined as a 0 increment anyway).
 */
 int pmt_random_unit_v2(uint8_t max, uint32_t item[4],
-                       struct mt19937_state *rng, lobby_t *l) {
+                       pcg32_random_t *rng, lobby_t *l) {
     uint64_t unit;
-    uint32_t rnd = mt19937_genrand_int32(rng);
+    uint32_t rnd = pcg32_random_r(rng);
 
 #ifdef DEBUG
     if(l->flags & LOBBY_FLAG_DBG_SDROPS)
@@ -1925,9 +1925,9 @@ int pmt_random_unit_v2(uint8_t max, uint32_t item[4],
 }
 
 int pmt_random_unit_gc(uint8_t max, uint32_t item[4],
-                       struct mt19937_state *rng, lobby_t *l) {
+                       pcg32_random_t *rng, lobby_t *l) {
     uint64_t unit;
-    uint32_t rnd = mt19937_genrand_int32(rng);
+    uint32_t rnd = pcg32_random_r(rng);
 
 #ifdef DEBUG
     if(l->flags & LOBBY_FLAG_DBG_SDROPS)
@@ -1955,9 +1955,9 @@ int pmt_random_unit_gc(uint8_t max, uint32_t item[4],
 }
 
 int pmt_random_unit_bb(uint8_t max, uint32_t item[4],
-                       struct mt19937_state *rng, lobby_t *l) {
+                       pcg32_random_t *rng, lobby_t *l) {
     uint64_t unit;
-    uint32_t rnd = mt19937_genrand_int32(rng);
+    uint32_t rnd = pcg32_random_r(rng);
 
 #ifdef DEBUG
     if(l->flags & LOBBY_FLAG_DBG_SDROPS)

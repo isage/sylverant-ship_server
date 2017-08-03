@@ -700,7 +700,7 @@ ship_t *ship_server_start(sylverant_ship_t *s) {
     }
 
     /* Create the random number generator state */
-    mt19937_init(&rv->rng, (uint32_t)time(NULL));
+    pcg32_srandom_r(&rv->rng, (uint32_t)time(NULL), 42);
 
     /* Connect to the shipgate. */
     if(shipgate_connect(rv, &rv->sg)) {

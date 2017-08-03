@@ -25,7 +25,7 @@
 #include <sylverant/config.h>
 #include <sylverant/quest.h>
 #include <sylverant/items.h>
-#include <sylverant/mtwist.h>
+#include <sylverant/pcg_basic.h>
 
 #include "gm.h"
 #include "block.h"
@@ -110,7 +110,7 @@ struct ship {
     int mccount;
     uint16_t *menu_codes;
 
-    struct mt19937_state rng;
+    pcg32_random_t rng;
 };
 
 #ifndef SHIP_DEFINED

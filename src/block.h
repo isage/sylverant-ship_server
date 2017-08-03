@@ -22,7 +22,7 @@
 #include <stdint.h>
 
 #include <sylverant/config.h>
-#include <sylverant/mtwist.h>
+#include <sylverant/pcg_basic.h>
 
 #include "lobby.h"
 
@@ -73,7 +73,7 @@ struct block {
     int num_games;
 
     /* Random number generator state */
-    struct mt19937_state rng;
+    pcg32_random_t rng;
 };
 
 #ifndef BLOCK_DEFINED

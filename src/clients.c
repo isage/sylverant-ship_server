@@ -29,7 +29,7 @@
 #include <sys/socket.h>
 
 #include <sylverant/encryption.h>
-#include <sylverant/mtwist.h>
+#include <sylverant/pcg_basic.h>
 #include <sylverant/debug.h>
 
 #include "ship.h"
@@ -94,7 +94,7 @@ ship_client_t *client_create_connection(int sock, int version, int type,
     uint8_t client_seed_bb[48], server_seed_bb[48];
     int i;
     pthread_mutexattr_t attr;
-    struct mt19937_state *rng;
+    pcg32_random_t *rng;
 
     if(!rv) {
         perror("malloc");
@@ -204,8 +204,8 @@ ship_client_t *client_create_connection(int sock, int version, int type,
         case CLIENT_VERSION_DCV2:
         case CLIENT_VERSION_PC:
             /* Generate the encryption keys for the client and server. */
-            client_seed_dc = mt19937_genrand_int32(rng);
-            server_seed_dc = mt19937_genrand_int32(rng);
+            client_seed_dc = pcg32_random_r(rng);
+            server_seed_dc = pcg32_random_r(rng);
 
             CRYPT_CreateKeys(&rv->skey, &server_seed_dc, CRYPT_PC);
             CRYPT_CreateKeys(&rv->ckey, &client_seed_dc, CRYPT_PC);
@@ -220,8 +220,8 @@ ship_client_t *client_create_connection(int sock, int version, int type,
         case CLIENT_VERSION_GC:
         case CLIENT_VERSION_EP3:
             /* Generate the encryption keys for the client and server. */
-            client_seed_dc = mt19937_genrand_int32(rng);
-            server_seed_dc = mt19937_genrand_int32(rng);
+            client_seed_dc = pcg32_random_r(rng);
+            server_seed_dc = pcg32_random_r(rng);
 
             CRYPT_CreateKeys(&rv->skey, &server_seed_dc, CRYPT_GAMECUBE);
             CRYPT_CreateKeys(&rv->ckey, &client_seed_dc, CRYPT_GAMECUBE);
@@ -236,8 +236,8 @@ ship_client_t *client_create_connection(int sock, int version, int type,
         case CLIENT_VERSION_BB:
             /* Generate the encryption keys for the client and server. */
             for(i = 0; i < 48; i += 4) {
-                client_seed_dc = mt19937_genrand_int32(rng);
-                server_seed_dc = mt19937_genrand_int32(rng);
+                client_seed_dc = pcg32_random_r(rng);
+                server_seed_dc = pcg32_random_r(rng);
 
                 client_seed_bb[i + 0] = (uint8_t)(client_seed_dc >>  0);
                 client_seed_bb[i + 1] = (uint8_t)(client_seed_dc >>  8);

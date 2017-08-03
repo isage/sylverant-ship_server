@@ -20,7 +20,7 @@
 #include <string.h>
 
 #include <sylverant/debug.h>
-#include <sylverant/mtwist.h>
+#include <sylverant/pcg_basic.h>
 
 #include "rtdata.h"
 #include "ship_packets.h"
@@ -303,7 +303,7 @@ int rt_gc_enabled(void) {
 
 uint32_t rt_generate_v2_rare(ship_client_t *c, lobby_t *l, int rt_index,
                              int area) {
-    struct mt19937_state *rng = &c->cur_block->rng;
+    pcg32_random_t *rng = &c->cur_block->rng;
     double rnd;
     rt_set_t *set;
     int i;
@@ -321,7 +321,7 @@ uint32_t rt_generate_v2_rare(ship_client_t *c, lobby_t *l, int rt_index,
 
     /* Are we doing a drop for an enemy or a box? */
     if(rt_index >= 0) {
-        rnd = mt19937_genrand_real1(rng);
+        rnd = pcg32_random_real_r(rng);
 
         if(rnd < set->enemy_rares[rt_index].prob)
             return set->enemy_rares[rt_index].item_data;
@@ -329,7 +329,7 @@ uint32_t rt_generate_v2_rare(ship_client_t *c, lobby_t *l, int rt_index,
     else {
         for(i = 0; i < 30; ++i) {
             if(set->box_rares[i].area == area) {
-                rnd = mt19937_genrand_real1(rng);
+                rnd = pcg32_random_real_r(rng);
 
                 if(rnd < set->box_rares[i].prob)
                     return set->box_rares[i].item_data;
@@ -342,7 +342,7 @@ uint32_t rt_generate_v2_rare(ship_client_t *c, lobby_t *l, int rt_index,
 
 uint32_t rt_generate_gc_rare(ship_client_t *c, lobby_t *l, int rt_index,
                              int area) {
-    struct mt19937_state *rng = &c->cur_block->rng;
+    pcg32_random_t *rng = &c->cur_block->rng;
     double rnd;
     rt_set_t *set;
     int i;
@@ -360,7 +360,7 @@ uint32_t rt_generate_gc_rare(ship_client_t *c, lobby_t *l, int rt_index,
 
     /* Are we doing a drop for an enemy or a box? */
     if(rt_index >= 0) {
-        rnd = mt19937_genrand_real1(rng);
+        rnd = pcg32_random_real_r(rng);
 
         if(rnd < set->enemy_rares[rt_index].prob)
             return set->enemy_rares[rt_index].item_data;
@@ -368,7 +368,7 @@ uint32_t rt_generate_gc_rare(ship_client_t *c, lobby_t *l, int rt_index,
     else {
         for(i = 0; i < 30; ++i) {
             if(set->box_rares[i].area == area) {
-                rnd = mt19937_genrand_real1(rng);
+                rnd = pcg32_random_real_r(rng);
 
                 if(rnd < set->box_rares[i].prob)
                     return set->box_rares[i].item_data;

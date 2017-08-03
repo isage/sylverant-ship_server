@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <sylverant/mtwist.h>
+#include <sylverant/pcg_basic.h>
 #include <sylverant/debug.h>
 #include <sylverant/checksum.h>
 
@@ -247,7 +247,7 @@ lobby_t *lobby_create_game(block_t *block, char *name, char *passwd,
         if((c->flags & CLIENT_FLAG_IS_DCNTE)) {
             for(i = 0; i < 0x20; ++i) {
                 if(dcnte_maps[i] != 1) {
-                    l->maps[i] = mt19937_genrand_int32(&block->rng) %
+                    l->maps[i] = pcg32_random_r(&block->rng) %
                         dcnte_maps[i];
                 }
             }
@@ -255,7 +255,7 @@ lobby_t *lobby_create_game(block_t *block, char *name, char *passwd,
         else if(!single_player) {
             for(i = 0; i < 0x20; ++i) {
                 if(maps[episode - 1][i] != 1) {
-                    l->maps[i] = mt19937_genrand_int32(&block->rng) %
+                    l->maps[i] = pcg32_random_r(&block->rng) %
                         maps[episode - 1][i];
                 }
             }
@@ -263,7 +263,7 @@ lobby_t *lobby_create_game(block_t *block, char *name, char *passwd,
         else {
             for(i = 0; i < 0x20; ++i) {
                 if(sp_maps[episode - 1][i] != 1) {
-                    l->maps[i] = mt19937_genrand_int32(&block->rng) %
+                    l->maps[i] = pcg32_random_r(&block->rng) %
                         sp_maps[episode - 1][i];
                 }
             }
@@ -276,7 +276,7 @@ lobby_t *lobby_create_game(block_t *block, char *name, char *passwd,
                     l->maps[i] = c->next_maps[i];
                 }
                 else {
-                    l->maps[i] = mt19937_genrand_int32(&block->rng) %
+                    l->maps[i] = pcg32_random_r(&block->rng) %
                         dcnte_maps[i];
                 }
             }
@@ -287,7 +287,7 @@ lobby_t *lobby_create_game(block_t *block, char *name, char *passwd,
                     l->maps[i] = c->next_maps[i];
                 }
                 else {
-                    l->maps[i] = mt19937_genrand_int32(&block->rng) %
+                    l->maps[i] = pcg32_random_r(&block->rng) %
                         maps[episode - 1][i];
                 }
             }
@@ -298,7 +298,7 @@ lobby_t *lobby_create_game(block_t *block, char *name, char *passwd,
                     l->maps[i] = c->next_maps[i];
                 }
                 else {
-                    l->maps[i] = mt19937_genrand_int32(&block->rng) %
+                    l->maps[i] = pcg32_random_r(&block->rng) %
                         sp_maps[episode - 1][i];
                 }
             }
@@ -340,7 +340,7 @@ lobby_t *lobby_create_game(block_t *block, char *name, char *passwd,
         ship_inc_games(block->ship);
     }
 
-    l->rand_seed = mt19937_genrand_int32(&block->rng);
+    l->rand_seed = pcg32_random_r(&block->rng);
 
     lobby_setup_drops(c, l, sylverant_crc32((uint8_t *)l->name, 16));
 
@@ -380,7 +380,7 @@ lobby_t *lobby_create_ep3_game(block_t *block, char *name, char *passwd,
     l->section = section;
     l->min_level = 1;
     l->max_level = 200;
-    l->rand_seed = mt19937_genrand_int32(&block->rng);
+    l->rand_seed = pcg32_random_r(&block->rng);
     l->create_time = time(NULL);
     l->flags |= LOBBY_FLAG_EP3;
 
@@ -532,14 +532,14 @@ static uint8_t lobby_find_max_challenge(lobby_t *l) {
 }
 
 static int td(ship_client_t *c, lobby_t *l, void *req) {
-    uint32_t r = mt19937_genrand_int32(&c->cur_block->rng);
+    uint32_t r = pcg32_random_r(&c->cur_block->rng);
     uint32_t i[4] = { 4, 0, 0, 0 };
 
     if((r & 15) != 2) {
         return 0;
     }
 
-    r =mt19937_genrand_int32(&c->cur_block->rng);
+    r = pcg32_random_r(&c->cur_block->rng);
 
     switch(l->difficulty) {
         case 0:
