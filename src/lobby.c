@@ -590,7 +590,7 @@ static int lobby_add_client_locked(ship_client_t *c, lobby_t *l) {
 
         /* Update the challenge level as needed. */
         if(l->challenge)
-            l->max_chal = l->max_chal = lobby_find_max_challenge(l);
+            l->max_chal = lobby_find_max_challenge(l);
 
         if(l->num_clients == 1)
             l->leader_id = c->client_id;
@@ -611,7 +611,7 @@ static int lobby_add_client_locked(ship_client_t *c, lobby_t *l) {
 
             /* Update the challenge level as needed. */
             if(l->challenge)
-                l->max_chal = l->max_chal = lobby_find_max_challenge(l);
+                l->max_chal = lobby_find_max_challenge(l);
 
             if(l->num_clients == 1)
                 l->leader_id = c->client_id;

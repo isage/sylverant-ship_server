@@ -550,7 +550,7 @@ int main(int argc, char *argv[]) {
     if(cfg->gc_pmtdata_file) {
         debug(DBG_LOG, "Reading GC ItemPMT file: %s\n", cfg->gc_pmtdata_file);
         if(pmt_read_gc(cfg->gc_pmtdata_file,
-                       !cfg->local_flags & SYLVERANT_SHIP_PMT_LIMITGC)) {
+                       !(cfg->local_flags & SYLVERANT_SHIP_PMT_LIMITGC))) {
             debug(DBG_WARN, "Couldn't read GC ItemPMT file!\n");
         }
     }
@@ -559,7 +559,7 @@ int main(int argc, char *argv[]) {
     if(cfg->bb_pmtdata_file) {
         debug(DBG_LOG, "Reading BB ItemPMT file: %s\n", cfg->bb_pmtdata_file);
         if(pmt_read_bb(cfg->bb_pmtdata_file,
-                       !cfg->local_flags & SYLVERANT_SHIP_PMT_LIMITBB)) {
+                       !(cfg->local_flags & SYLVERANT_SHIP_PMT_LIMITBB))) {
             debug(DBG_WARN, "Couldn't read BB ItemPMT file!\n");
             cfg->shipgate_flags |= SHIPGATE_FLAG_NOBB;
         }
